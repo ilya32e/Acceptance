@@ -3,55 +3,74 @@ pipeline {
     stages {
         stage('Compilation') {
             steps {
-                sh './gradlew compileJava'
+                script {
+                    sh './gradlew compileJava'
+                }
             }
         }
-        stage('test unitaire') {
+        stage('Test Unitaire') {
             steps {
-                sh './gradlew test'
+                script {
+                    sh './gradlew test'
+                }
             }
         }
-        stage('Code coverage') {
+        stage('Code Coverage') {
             steps {
-                sh './gradlew jacocoTestReport'
-                publishHTML(target: [
-    reportDir: 'build/reports/jacoco/test/html',
-    reportFiles: 'index.html',
-    reportName: 'JaCoCo Report'
-    ])
-                sh './gradlew jacocoTestCoverageVerification'
+                script {
+                    sh './gradlew jacocoTestReport'
+                    publishHTML(target: [
+                        reportDir: 'build/reports/jacoco/test/html',
+                        reportFiles: 'index.html',
+                        reportName: 'JaCoCo Report'
+                    ])
+                    sh './gradlew jacocoTestCoverageVerification'
+                }
             }
         }
-    	stage("Package") {
-		steps {
-			sh "./gradlew build"
-		}
-    	}
-    	stage("Docker build") {
-		steps {
-			sh "docker build -t calculator ."
-    		}
-    	}
-    	stage("Docker push"){
-    		steps {
-    		sh "docker push localhost:5000/calculator"
-    		}
-    	}  
-    	stage("Déploiement sur staging") {
-		steps {
-		sh "docker run -d --rm -p 8765:8080 --name 		calculator localhost:5000/calculator"
-		}
-	}
-	stage("Test d'acceptation") {
-		steps {
-			sleep 60
-			sh "chmod +x acceptance_test.sh && ./acceptance_test.sh"
-		}
-	}  
+        stage("Package") {
+            steps {
+                script {
+                    sh "./gradlew build"
+                }
+            }
+        }
+        stage("Docker Build") {
+            steps {
+                script {
+                    sh "docker build -t calculator:latest ."
+                }
+            }
+        }
+        stage("Docker Push") {
+            steps {
+                script {
+                    sh "docker push localhost:5000/calculator:latest"
+                }
+            }
+        }
+        stage("Déploiement sur Staging") {
+            steps {
+                script {
+                    sh "docker run -d --rm -p 8765:8080 --name calculator localhost:5000/calculator:latest"
+                }
+            }
+        }
+        stage("Test d'acceptation") {
+            steps {
+                script {
+                    sleep 60
+                    sh "chmod +x acceptance_test.sh && ./acceptance_test.sh"
+                }
+            }
+        }
     }
     post {
-    	always{
-    	sh "docker stop calculator"
-    	}
+        always {
+            script {
+                sh "docker stop calculator"
+            }
+        }
     }
 }
+
