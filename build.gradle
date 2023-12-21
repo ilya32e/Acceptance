@@ -1,49 +1,55 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.0'
-	id 'io.spring.dependency-management' version '1.1.4'
-	id 'jacoco'
+    id 'org.springframework.boot' version '2.6.0'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'jacoco'
 }
 
 group = 'com.amine'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0-M1'
-	testImplementation 'junit:junit:4.13.2'
-	testImplementation 'io.cucumber:cucumber-java:7.14.1'
-	testImplementation 'io.cucumber:cucumber-junit:7.14.1'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0-M1'
+    testImplementation 'io.cucumber:cucumber-java:7.14.1'
+    testImplementation 'io.cucumber:cucumber-junit:7.14.1'
 }
-
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
+
 tasks.register('acceptanceTest', Test) {
-	include '**/acceptance/**'
-	systemProperties System.getProperties()
+    useJUnitPlatform()
+    include '**/acceptance/**'
+    systemProperties System.getProperties()
 }
+
 test {
-	exclude '**/acceptance/**'
+    exclude '**/acceptance/**'
 }
 
-
+jacoco {
+    toolVersion = '0.8.7' // Use the latest version of Jacoco compatible with Gradle 8
+}
 jacocoTestCoverageVerification {
-	violationRules {
-		rule {
-			limit {
-			minimum = 0.2
-			}
-		}
-	}
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.2
+            }
+        }
+    }
 }
+        
+
